@@ -3,7 +3,7 @@ export $(shell sed 's/=.*//' .env)
 
 build:
 	@echo "Building..."
-	@go build -o bin/$(APP_NAME) .
+	@go build -o bin/$(APP_NAME) ./cmd/server
 
 seed:
 	@echo "Seeding..."

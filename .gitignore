@@ -1,0 +1,62 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Output of the `go` tool
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Go workspace file
+go.work
+
+# Project specific
+bin/
+build/
+dist/
+*.log
+
+# Temporary files
+*.tmp
+*.swp
+
+# Vendor directory
+/vendor/
+
+# Dependencies
+/go/pkg/mod/
+/go/bin/
+/go/src/
+
+# IDE and editor specific files
+.idea/
+.vscode/
+*.code-workspace
+
+# System specific files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+
+# Environment variables
+.env
+
+# Database related files
+*.db
+*.sql
+
+# Migration files
+migrations/
+
+# Node modules (
