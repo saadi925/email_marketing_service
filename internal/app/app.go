@@ -11,7 +11,7 @@ func App() {
 	if err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
-	apiConf := ApiConfig{
+	apiConf := apiConfig{
 		DB: database.New(db),
 	}
 	defer db.Close()

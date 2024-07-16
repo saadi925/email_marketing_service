@@ -52,7 +52,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateU
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, email, name, created_at, updated_at,verified
+SELECT id, email, name, created_at, updated_at,verified, password
 FROM users
 WHERE email = $1
 `
@@ -64,6 +64,7 @@ type GetUserByEmailRow struct {
 	CreatedAt sql.NullTime
 	UpdatedAt sql.NullTime
 	Verified  sql.NullBool
+	Password  string
 }
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (GetUserByEmailRow, error) {
@@ -76,6 +77,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (GetUserByEm
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Verified,
+		&i.Password,
 	)
 	return i, err
 }

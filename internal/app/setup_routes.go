@@ -19,11 +19,10 @@ func enableCors() func(http.Handler) http.Handler {
 	})
 }
 
-func bootstrapRoutes(config ApiConfig) *chi.Mux {
+func bootstrapRoutes(config apiConfig) *chi.Mux {
 	r := chi.NewRouter()
 	r.Use(enableCors())
-	// Auth Routes
-	// A Local Guard Middleware will be best in production , so it will redirect , if the user is loggedIn
+
 	auth.Routes(r, config.DB)
 	users.Routes(r, config.DB)
 	return r

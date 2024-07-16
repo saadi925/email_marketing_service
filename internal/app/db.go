@@ -9,7 +9,7 @@ import (
 	"github.com/saadi925/email_marketing_api/internal/database"
 )
 
-type ApiConfig struct {
+type apiConfig struct {
 	DB *database.Queries
 }
 
