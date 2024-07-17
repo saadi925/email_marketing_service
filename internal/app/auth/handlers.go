@@ -31,7 +31,7 @@ func signIn(queries *database.Queries) http.HandlerFunc {
 			return
 		}
 
-		err = validate.Struct(creds)
+		err = utils.Validate.Struct(creds)
 		if err != nil {
 			utils.RespondError(w, http.StatusBadRequest, err.Error())
 			return
@@ -116,7 +116,7 @@ func signUp(queries *database.Queries) http.HandlerFunc {
 			return
 		}
 
-		err = validate.Struct(creds)
+		err = utils.Validate.Struct(creds)
 		if err != nil {
 			utils.RespondError(w, http.StatusBadRequest, "Validation failed")
 			return

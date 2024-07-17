@@ -6,6 +6,7 @@ package database
 
 import (
 	"database/sql"
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -34,6 +35,29 @@ type CampaignOption struct {
 	UpdatedAt             sql.NullTime
 }
 
+type Contact struct {
+	ID             uuid.UUID
+	FirstName      sql.NullString
+	LastName       sql.NullString
+	Subscribed     sql.NullBool
+	Blocklisted    sql.NullBool
+	Email          string
+	Whatsapp       sql.NullString
+	LandlineNumber sql.NullString
+	LastChanged    sql.NullTime
+	DateAdded      sql.NullTime
+}
+
+type ContactList struct {
+	ContactID uuid.UUID
+	ListID    uuid.UUID
+}
+
+type ContactSegment struct {
+	ContactID uuid.UUID
+	SegmentID uuid.UUID
+}
+
 type Email struct {
 	ID             uuid.UUID
 	CampaignID     uuid.UUID
@@ -42,6 +66,15 @@ type Email struct {
 	SentAt         sql.NullTime
 	CreatedAt      sql.NullTime
 	UpdatedAt      sql.NullTime
+}
+
+type EmailList struct {
+	ID          uuid.UUID
+	Name        string
+	Description sql.NullString
+	OwnerID     uuid.NullUUID
+	CreatedAt   sql.NullTime
+	UpdatedAt   sql.NullTime
 }
 
 type EmailLog struct {
@@ -97,10 +130,27 @@ type RefreshToken struct {
 	ExpiresAt time.Time
 }
 
+type Segment struct {
+	ID          uuid.UUID
+	Name        string
+	Description sql.NullString
+	Criteria    json.RawMessage
+	CreatedAt   sql.NullTime
+	UpdatedAt   sql.NullTime
+}
+
 type Subscription struct {
 	ID        uuid.UUID
 	UserID    uuid.UUID
 	Email     string
+	CreatedAt sql.NullTime
+	UpdatedAt sql.NullTime
+}
+
+type UpdateProfileForm struct {
+	ID        uuid.UUID
+	Name      string
+	Fields    json.RawMessage
 	CreatedAt sql.NullTime
 	UpdatedAt sql.NullTime
 }

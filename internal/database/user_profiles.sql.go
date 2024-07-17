@@ -96,3 +96,68 @@ func (q *Queries) GetUserProfileByUserID(ctx context.Context, userID uuid.UUID) 
 	)
 	return i, err
 }
+
+const updateUserProfile = `-- name: UpdateUserProfile :one
+UPDATE user_profiles
+SET email = $2,
+    first_name = $3,
+    last_name = $4,
+    phone_number = $5,
+    company_name = $6,
+    website = $7,
+    street_address = $8,
+    zip_code = $9,
+    city = $10,
+    country = $11,
+    updated_at = NOW()
+WHERE user_id = $1
+RETURNING id, user_id, email, first_name, last_name, phone_number, company_name, website, street_address, zip_code, city, country, created_at, updated_at
+`
+
+type UpdateUserProfileParams struct {
+	UserID        uuid.UUID
+	Email         string
+	FirstName     string
+	LastName      string
+	PhoneNumber   sql.NullString
+	CompanyName   string
+	Website       sql.NullString
+	StreetAddress string
+	ZipCode       string
+	City          string
+	Country       string
+}
+
+func (q *Queries) UpdateUserProfile(ctx context.Context, arg UpdateUserProfileParams) (UserProfile, error) {
+	row := q.db.QueryRowContext(ctx, updateUserProfile,
+		arg.UserID,
+		arg.Email,
+		arg.FirstName,
+		arg.LastName,
+		arg.PhoneNumber,
+		arg.CompanyName,
+		arg.Website,
+		arg.StreetAddress,
+		arg.ZipCode,
+		arg.City,
+		arg.Country,
+	)
+	var i UserProfile
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Email,
+		&i.FirstName,
+		&i.LastName,
+		&i.PhoneNumber,
+		&i.CompanyName,
+		&i.Website,
+		&i.StreetAddress,
+		&i.ZipCode,
+		&i.City,
+		&i.Country,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}

@@ -3,14 +3,17 @@ package middlewares
 import (
 	"errors"
 	"net/http"
+	"os"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 )
 
 func extractUserIDFromToken(r *http.Request) (uuid.UUID, error) {
-	cookie, err := r.Cookie("access_token")
+	// Retrieve the JWT secret from environment variables
+	jwtSecret := []byte(os.Getenv("JWT_SECRET"))
 
+	cookie, err := r.Cookie("access_token")
 	if err != nil {
 		return uuid.Nil, errors.New("missing token")
 	}
