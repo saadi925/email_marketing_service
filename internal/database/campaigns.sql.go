@@ -8,6 +8,8 @@ package database
 import (
 	"context"
 	"database/sql"
+
+	"github.com/google/uuid"
 )
 
 const createCampaign = `-- name: CreateCampaign :one
@@ -17,7 +19,7 @@ RETURNING id, user_id, name, subject, body, scheduled_at, created_at, updated_at
 `
 
 type CreateCampaignParams struct {
-	UserID      int32
+	UserID      uuid.UUID
 	Name        string
 	Subject     string
 	Body        string
@@ -52,7 +54,7 @@ FROM campaigns
 WHERE user_id = $1
 `
 
-func (q *Queries) GetCampaignsByUserID(ctx context.Context, userID int32) ([]Campaign, error) {
+func (q *Queries) GetCampaignsByUserID(ctx context.Context, userID uuid.UUID) ([]Campaign, error) {
 	rows, err := q.db.QueryContext(ctx, getCampaignsByUserID, userID)
 	if err != nil {
 		return nil, err

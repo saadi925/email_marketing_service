@@ -8,7 +8,43 @@ package database
 import (
 	"context"
 	"database/sql"
+	"time"
+
+	"github.com/google/uuid"
 )
+
+const createRefreshToken = `-- name: CreateRefreshToken :one
+INSERT INTO refresh_tokens (user_id, token, expires_at)
+VALUES ($1, $2, $3)
+RETURNING id, user_id, token, expires_at, created_at
+`
+
+type CreateRefreshTokenParams struct {
+	UserID    uuid.UUID
+	Token     string
+	ExpiresAt time.Time
+}
+
+type CreateRefreshTokenRow struct {
+	ID        uuid.UUID
+	UserID    uuid.UUID
+	Token     string
+	ExpiresAt time.Time
+	CreatedAt sql.NullTime
+}
+
+func (q *Queries) CreateRefreshToken(ctx context.Context, arg CreateRefreshTokenParams) (CreateRefreshTokenRow, error) {
+	row := q.db.QueryRowContext(ctx, createRefreshToken, arg.UserID, arg.Token, arg.ExpiresAt)
+	var i CreateRefreshTokenRow
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Token,
+		&i.ExpiresAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (email, password, name,verified)
@@ -20,16 +56,16 @@ type CreateUserParams struct {
 	Email    string
 	Password string
 	Name     string
-	Verified sql.NullBool
+	Verified bool
 }
 
 type CreateUserRow struct {
-	ID        int32
+	ID        uuid.UUID
 	Email     string
 	Name      string
 	CreatedAt sql.NullTime
 	UpdatedAt sql.NullTime
-	Verified  sql.NullBool
+	Verified  bool
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateUserRow, error) {
@@ -51,6 +87,53 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateU
 	return i, err
 }
 
+const deleteEmailVerifyByEmail = `-- name: DeleteEmailVerifyByEmail :exec
+DELETE FROM email_verify
+WHERE email = $1
+`
+
+func (q *Queries) DeleteEmailVerifyByEmail(ctx context.Context, email string) error {
+	_, err := q.db.ExecContext(ctx, deleteEmailVerifyByEmail, email)
+	return err
+}
+
+const deleteRefreshToken = `-- name: DeleteRefreshToken :exec
+DELETE FROM refresh_tokens
+WHERE token = $1
+`
+
+func (q *Queries) DeleteRefreshToken(ctx context.Context, token string) error {
+	_, err := q.db.ExecContext(ctx, deleteRefreshToken, token)
+	return err
+}
+
+const getRefreshTokenByToken = `-- name: GetRefreshTokenByToken :one
+SELECT id, user_id, token, expires_at, created_at
+FROM refresh_tokens
+WHERE token = $1
+`
+
+type GetRefreshTokenByTokenRow struct {
+	ID        uuid.UUID
+	UserID    uuid.UUID
+	Token     string
+	ExpiresAt time.Time
+	CreatedAt sql.NullTime
+}
+
+func (q *Queries) GetRefreshTokenByToken(ctx context.Context, token string) (GetRefreshTokenByTokenRow, error) {
+	row := q.db.QueryRowContext(ctx, getRefreshTokenByToken, token)
+	var i GetRefreshTokenByTokenRow
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Token,
+		&i.ExpiresAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getUserByEmail = `-- name: GetUserByEmail :one
 SELECT id, email, name, created_at, updated_at,verified, password
 FROM users
@@ -58,12 +141,12 @@ WHERE email = $1
 `
 
 type GetUserByEmailRow struct {
-	ID        int32
+	ID        uuid.UUID
 	Email     string
 	Name      string
 	CreatedAt sql.NullTime
 	UpdatedAt sql.NullTime
-	Verified  sql.NullBool
+	Verified  bool
 	Password  string
 }
 
@@ -80,4 +163,31 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (GetUserByEm
 		&i.Password,
 	)
 	return i, err
+}
+
+const updateUserPassword = `-- name: UpdateUserPassword :exec
+UPDATE users
+SET password = $2
+WHERE id = $1
+`
+
+type UpdateUserPasswordParams struct {
+	ID       uuid.UUID
+	Password string
+}
+
+func (q *Queries) UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParams) error {
+	_, err := q.db.ExecContext(ctx, updateUserPassword, arg.ID, arg.Password)
+	return err
+}
+
+const verifyUserByEmail = `-- name: VerifyUserByEmail :exec
+UPDATE users
+SET verified = true
+WHERE email = $1
+`
+
+func (q *Queries) VerifyUserByEmail(ctx context.Context, email string) error {
+	_, err := q.db.ExecContext(ctx, verifyUserByEmail, email)
+	return err
 }

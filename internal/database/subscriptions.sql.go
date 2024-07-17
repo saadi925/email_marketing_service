@@ -7,6 +7,8 @@ package database
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 const createSubscription = `-- name: CreateSubscription :one
@@ -16,7 +18,7 @@ RETURNING id, user_id, email, created_at, updated_at
 `
 
 type CreateSubscriptionParams struct {
-	UserID int32
+	UserID uuid.UUID
 	Email  string
 }
 
@@ -39,7 +41,7 @@ FROM subscriptions
 WHERE user_id = $1
 `
 
-func (q *Queries) GetSubscriptionsByUserID(ctx context.Context, userID int32) ([]Subscription, error) {
+func (q *Queries) GetSubscriptionsByUserID(ctx context.Context, userID uuid.UUID) ([]Subscription, error) {
 	rows, err := q.db.QueryContext(ctx, getSubscriptionsByUserID, userID)
 	if err != nil {
 		return nil, err

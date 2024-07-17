@@ -6,13 +6,15 @@ package database
 
 import (
 	"database/sql"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 )
 
 type Campaign struct {
-	ID          int32
-	UserID      int32
+	ID          uuid.UUID
+	UserID      uuid.UUID
 	Name        string
 	Subject     string
 	Body        string
@@ -22,10 +24,10 @@ type Campaign struct {
 }
 
 type CampaignOption struct {
-	ID                    int32
-	CampaignID            int32
+	ID                    uuid.UUID
+	CampaignID            uuid.UUID
 	EnableGoogleAnalytics sql.NullBool
-	UpdateProfileFormID   sql.NullInt32
+	UpdateProfileFormID   uuid.NullUUID
 	Tags                  pqtype.NullRawMessage
 	Attachments           pqtype.NullRawMessage
 	CreatedAt             sql.NullTime
@@ -33,8 +35,8 @@ type CampaignOption struct {
 }
 
 type Email struct {
-	ID             int32
-	CampaignID     int32
+	ID             uuid.UUID
+	CampaignID     uuid.UUID
 	RecipientEmail string
 	Status         sql.NullString
 	SentAt         sql.NullTime
@@ -43,16 +45,16 @@ type Email struct {
 }
 
 type EmailLog struct {
-	ID        int32
-	EmailID   int32
+	ID        uuid.UUID
+	EmailID   uuid.UUID
 	Status    sql.NullString
 	Message   sql.NullString
 	CreatedAt sql.NullTime
 }
 
 type EmailTemplate struct {
-	ID               int32
-	UserID           int32
+	ID               uuid.UUID
+	UserID           uuid.UUID
 	TemplateName     string
 	SubjectLine      string
 	PreviewText      sql.NullString
@@ -64,35 +66,58 @@ type EmailTemplate struct {
 	UpdatedAt        sql.NullTime
 }
 
+type EmailVerify struct {
+	Email       string
+	Code        string
+	Retry       int32
+	LastAttempt time.Time
+}
+
 type Notification struct {
-	ID        int32
-	UserID    int32
+	ID        uuid.UUID
+	UserID    uuid.UUID
 	Message   string
 	Read      sql.NullBool
 	CreatedAt sql.NullTime
 }
 
+type PasswordResetToken struct {
+	ID        uuid.UUID
+	UserID    uuid.UUID
+	Token     string
+	ExpiresAt time.Time
+	CreatedAt sql.NullTime
+}
+
+type RefreshToken struct {
+	ID        uuid.UUID
+	UserID    uuid.UUID
+	Token     string
+	CreatedAt sql.NullTime
+	ExpiresAt time.Time
+}
+
 type Subscription struct {
-	ID        int32
-	UserID    int32
+	ID        uuid.UUID
+	UserID    uuid.UUID
 	Email     string
 	CreatedAt sql.NullTime
 	UpdatedAt sql.NullTime
 }
 
 type User struct {
-	ID        int32
+	ID        uuid.UUID
 	Email     string
 	Password  string
 	Name      string
-	Verified  sql.NullBool
+	Verified  bool
 	CreatedAt sql.NullTime
 	UpdatedAt sql.NullTime
 }
 
 type UserProfile struct {
-	ID            int32
-	UserID        int32
+	ID            uuid.UUID
+	UserID        uuid.UUID
 	Email         string
 	FirstName     string
 	LastName      string

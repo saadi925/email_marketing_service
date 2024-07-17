@@ -8,6 +8,8 @@ package database
 import (
 	"context"
 	"database/sql"
+
+	"github.com/google/uuid"
 )
 
 const createEmailLog = `-- name: CreateEmailLog :one
@@ -17,7 +19,7 @@ RETURNING id, email_id, status, message, created_at
 `
 
 type CreateEmailLogParams struct {
-	EmailID int32
+	EmailID uuid.UUID
 	Status  sql.NullString
 	Message sql.NullString
 }
@@ -41,7 +43,7 @@ FROM email_logs
 WHERE email_id = $1
 `
 
-func (q *Queries) GetEmailLogsByEmailID(ctx context.Context, emailID int32) ([]EmailLog, error) {
+func (q *Queries) GetEmailLogsByEmailID(ctx context.Context, emailID uuid.UUID) ([]EmailLog, error) {
 	rows, err := q.db.QueryContext(ctx, getEmailLogsByEmailID, emailID)
 	if err != nil {
 		return nil, err

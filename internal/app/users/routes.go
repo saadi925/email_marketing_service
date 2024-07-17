@@ -8,7 +8,7 @@ import (
 
 func Routes(r chi.Router, db *database.Queries) {
 	r.Route("/users", func(r chi.Router) {
-		r.Get("/", middlewares.AuthMiddleware(getUser))
+		r.Get("/", middlewares.AuthMiddleware(protectedService, db))
 	})
 
 }

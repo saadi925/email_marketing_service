@@ -1,13 +1,12 @@
 include .env
 export $(shell sed 's/=.*//' .env)
-
 build:
 	@echo "Building..."
 	@go build -o bin/$(APP_NAME) ./cmd/server
 
 seed:
 	@echo "Seeding..."
-	@go run cmd/seed/main.go
+	@go run cmd/seed/seed.go
 
 db-status:
 	@echo "Checking database status..."

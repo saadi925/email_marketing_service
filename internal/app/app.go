@@ -2,12 +2,13 @@ package app
 
 import (
 	"log"
+	"net/http"
 
 	"github.com/saadi925/email_marketing_api/internal/database"
 )
 
 func App() {
-	db, err := dbInit()
+	db, err := DBInit()
 	if err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
@@ -15,5 +16,10 @@ func App() {
 		DB: database.New(db),
 	}
 	defer db.Close()
-	bootstrapRoutes(apiConf)
+	r := bootstrapRoutes(apiConf)
+	port := getEnv("PORT", "8080")
+
+	log.Printf("Server started on port %s\n", port)
+	log.Fatal(http.ListenAndServe(":"+port, r))
+
 }

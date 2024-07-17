@@ -13,7 +13,7 @@ type apiConfig struct {
 	DB *database.Queries
 }
 
-func dbInit() (*sql.DB, error) {
+func DBInit() (*sql.DB, error) {
 	dsn := getEnv("DB_URL", "postgres://postgres:Saadsaad1@localhost:5432/email_marketing?sslmode=disable")
 
 	db, err := sql.Open("postgres", dsn)

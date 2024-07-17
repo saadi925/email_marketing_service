@@ -9,7 +9,8 @@ import (
 )
 
 func extractUserIDFromToken(r *http.Request) (uuid.UUID, error) {
-	cookie, err := r.Cookie("jwt_token")
+	cookie, err := r.Cookie("access_token")
+
 	if err != nil {
 		return uuid.Nil, errors.New("missing token")
 	}

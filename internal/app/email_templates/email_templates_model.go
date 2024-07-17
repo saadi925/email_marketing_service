@@ -2,11 +2,13 @@ package email_templates
 
 import (
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type EmailTemplate struct {
 	ID               int       `json:"id"`
-	UserID           int       `json:"user_id"`
+	UserID           uuid.UUID `json:"user_id"`
 	TemplateName     string    `json:"template_name"`
 	SubjectLine      string    `json:"subject_line"`
 	PreviewText      string    `json:"preview_text"`

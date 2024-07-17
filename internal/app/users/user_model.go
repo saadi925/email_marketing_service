@@ -3,12 +3,13 @@ package users
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/saadi925/email_marketing_api/internal/app/utils"
 	"github.com/saadi925/email_marketing_api/internal/database"
 )
 
 type User struct {
-	ID        int       `json:"id"`
+	ID        uuid.UUID `json:"id"`
 	Email     string    `json:"email"`
 	Password  string    `json:"password"`
 	Name      string    `json:"name"`

@@ -9,6 +9,7 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 )
 
@@ -19,9 +20,9 @@ RETURNING id, campaign_id, enable_google_analytics, update_profile_form_id, tags
 `
 
 type CreateCampaignOptionsParams struct {
-	CampaignID            int32
+	CampaignID            uuid.UUID
 	EnableGoogleAnalytics sql.NullBool
-	UpdateProfileFormID   sql.NullInt32
+	UpdateProfileFormID   uuid.NullUUID
 	Tags                  pqtype.NullRawMessage
 	Attachments           pqtype.NullRawMessage
 }
@@ -54,7 +55,7 @@ FROM campaign_options
 WHERE campaign_id = $1
 `
 
-func (q *Queries) GetCampaignOptionsByCampaignID(ctx context.Context, campaignID int32) ([]CampaignOption, error) {
+func (q *Queries) GetCampaignOptionsByCampaignID(ctx context.Context, campaignID uuid.UUID) ([]CampaignOption, error) {
 	rows, err := q.db.QueryContext(ctx, getCampaignOptionsByCampaignID, campaignID)
 	if err != nil {
 		return nil, err

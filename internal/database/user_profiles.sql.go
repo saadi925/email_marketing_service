@@ -8,6 +8,8 @@ package database
 import (
 	"context"
 	"database/sql"
+
+	"github.com/google/uuid"
 )
 
 const createUserProfile = `-- name: CreateUserProfile :one
@@ -17,7 +19,7 @@ RETURNING id, user_id, email, first_name, last_name, created_at, updated_at
 `
 
 type CreateUserProfileParams struct {
-	UserID        int32
+	UserID        uuid.UUID
 	Email         string
 	FirstName     string
 	LastName      string
@@ -31,8 +33,8 @@ type CreateUserProfileParams struct {
 }
 
 type CreateUserProfileRow struct {
-	ID        int32
-	UserID    int32
+	ID        uuid.UUID
+	UserID    uuid.UUID
 	Email     string
 	FirstName string
 	LastName  string
@@ -73,7 +75,7 @@ FROM user_profiles
 WHERE user_id = $1
 `
 
-func (q *Queries) GetUserProfileByUserID(ctx context.Context, userID int32) (UserProfile, error) {
+func (q *Queries) GetUserProfileByUserID(ctx context.Context, userID uuid.UUID) (UserProfile, error) {
 	row := q.db.QueryRowContext(ctx, getUserProfileByUserID, userID)
 	var i UserProfile
 	err := row.Scan(

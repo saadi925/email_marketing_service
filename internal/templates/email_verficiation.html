@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+    <div class="container" style="width: 80%; background-color: #f8f9fa; padding: 20px; border-radius: 5px;">
+        <h2 class="header" style="color: #6c757d;">Tickto App Email Verification</h2>
+        <p class="content" style="margin-top: 20px; line-height: 1.6; font-family: Arial, sans-serif;">
+            Hi,<br><br>
+            Your Email Verification code for Tickto is TKT-{{ .VerificationCode }}<br>
+            <br>
+                <span class="code_vf_form_security_site" style="background: #222; color: white;padding: 8px 12px; font-size: 24px; font-weight: 700; text-align: center;">{{ .VerificationCode }}</span>
+    <br><br>
+            Best regards,<br>
+            The Hoopoes Team
+        </p>
+    </div>
+</body>
+</html>

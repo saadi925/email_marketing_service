@@ -7,6 +7,8 @@ package database
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 const createEmail = `-- name: CreateEmail :one
@@ -16,7 +18,7 @@ RETURNING id, campaign_id, recipient_email, status, sent_at, created_at, updated
 `
 
 type CreateEmailParams struct {
-	CampaignID     int32
+	CampaignID     uuid.UUID
 	RecipientEmail string
 }
 

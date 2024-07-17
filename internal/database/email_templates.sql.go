@@ -8,6 +8,8 @@ package database
 import (
 	"context"
 	"database/sql"
+
+	"github.com/google/uuid"
 )
 
 const createEmailTemplate = `-- name: CreateEmailTemplate :one
@@ -17,7 +19,7 @@ RETURNING id, user_id, template_name, subject_line, preview_text, from_email, fr
 `
 
 type CreateEmailTemplateParams struct {
-	UserID           int32
+	UserID           uuid.UUID
 	TemplateName     string
 	SubjectLine      string
 	PreviewText      sql.NullString
@@ -61,7 +63,7 @@ FROM email_templates
 WHERE user_id = $1
 `
 
-func (q *Queries) GetEmailTemplatesByUserID(ctx context.Context, userID int32) ([]EmailTemplate, error) {
+func (q *Queries) GetEmailTemplatesByUserID(ctx context.Context, userID uuid.UUID) ([]EmailTemplate, error) {
 	rows, err := q.db.QueryContext(ctx, getEmailTemplatesByUserID, userID)
 	if err != nil {
 		return nil, err

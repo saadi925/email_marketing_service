@@ -7,6 +7,8 @@ package database
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 const createNotification = `-- name: CreateNotification :one
@@ -16,7 +18,7 @@ RETURNING id, user_id, message, read, created_at
 `
 
 type CreateNotificationParams struct {
-	UserID  int32
+	UserID  uuid.UUID
 	Message string
 }
 
@@ -39,7 +41,7 @@ FROM notifications
 WHERE user_id = $1
 `
 
-func (q *Queries) GetNotificationsByUserID(ctx context.Context, userID int32) ([]Notification, error) {
+func (q *Queries) GetNotificationsByUserID(ctx context.Context, userID uuid.UUID) ([]Notification, error) {
 	rows, err := q.db.QueryContext(ctx, getNotificationsByUserID, userID)
 	if err != nil {
 		return nil, err

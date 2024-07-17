@@ -7,10 +7,10 @@ import (
 
 func Routes(r chi.Router, db *database.Queries) {
 	r.Route("/auth", func(r chi.Router) {
-		r.Get("/signin", signIn(db))
-		r.Get("/signup", signUp(db))
-		r.Get("/verify-email", verifyEmail(db))
-		r.Get("/verify-email-token", verifyOneTimeToken(db))
-		r.Get("/reset-password", resetPassword(db))
+		r.Post("/signin", signIn(db))
+		r.Post("/signup", signUp(db))
+		r.Put("/verify-email", verifyEmail(db))
+		r.Get("/forgot-password", forgotPassword(db))
+		r.Post("/change-password", changePassword(db))
 	})
 }
