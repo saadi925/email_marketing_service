@@ -6,11 +6,12 @@ import (
 )
 
 func Routes(r chi.Router, db *database.Queries) {
+	authService := NewAuthService(db)
 	r.Route("/auth", func(r chi.Router) {
-		r.Post("/signin", signIn(db))
-		r.Post("/signup", signUp(db))
-		r.Put("/verify-email", verifyEmail(db))
-		r.Get("/forgot-password", forgotPassword(db))
-		r.Post("/change-password", changePassword(db))
+		r.Post("/signin", SignInHandler(authService))
+		r.Post("/signup", SignUpHandler(authService))
+		r.Put("/verify-email", VerifyEmailHandler(authService))
+		r.Get("/forgot-password", ForgotPasswordHandler(authService))
+		r.Post("/change-password", ChangePasswordHandler(authService))
 	})
 }
