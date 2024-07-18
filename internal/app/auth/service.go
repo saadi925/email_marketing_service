@@ -4,6 +4,7 @@ package auth
 import (
 	"context"
 	"errors"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -19,10 +20,10 @@ const (
 )
 
 var (
-	ErrAccountNotVerified        = errors.New("account not verified")
-	ErrInvalidCredentials        = errors.New("invalid email or password")
-	ErrInvalidVerificationCode   = errors.New("invalid verification code")
-	ErrExpiredPasswordResetToken = errors.New("password reset token has expired")
+	errAccountNotVerified        = errors.New("account not verified")
+	errInvalidCredentials        = errors.New("invalid email or password")
+	errInvalidVerificationCode   = errors.New("invalid verification code")
+	errExpiredPasswordResetToken = errors.New("password reset token has expired")
 )
 
 type AuthService interface {
@@ -53,12 +54,12 @@ func (s *authService) SignIn(ctx context.Context, creds signInRequest) (string, 
 	}
 
 	if !user.Verified {
-		return "", "", ErrAccountNotVerified
+		return "", "", errAccountNotVerified
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(creds.Password))
 	if err != nil {
-		return "", "", ErrInvalidCredentials
+		return "", "", errInvalidCredentials
 	}
 
 	accessToken, err := generateJWT(users.User{
@@ -125,7 +126,7 @@ func (s *authService) VerifyEmail(ctx context.Context, email string, code string
 	}
 
 	if emailVerify.Code != code {
-		return ErrInvalidVerificationCode
+		return errInvalidVerificationCode
 	}
 
 	err = s.db.VerifyUserByEmail(ctx, email)
@@ -181,7 +182,7 @@ func (s *authService) ChangePassword(ctx context.Context, changePasswordRequest 
 	}
 
 	if tokenInfo.ExpiresAt.Before(time.Now()) {
-		return ErrExpiredPasswordResetToken
+		return errExpiredPasswordResetToken
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(changePasswordRequest.Password), bcrypt.DefaultCost)
@@ -203,4 +204,12 @@ func (s *authService) ChangePassword(ctx context.Context, changePasswordRequest 
 	}
 
 	return nil
+}
+func generateJWT(user users.User, expiry time.Duration) (string, error) {
+	claims := jwt.MapClaims{
+		"userID": user.ID,
+		"exp":    time.Now().Add(expiry).Unix(),
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 }

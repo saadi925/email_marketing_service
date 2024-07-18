@@ -7,9 +7,10 @@ import (
 )
 
 func Routes(r chi.Router, db *database.Queries) {
+	profileService := NewUserProfileService(db)
 	r.Route("/userprofile", func(r chi.Router) {
-		r.Post("/", middlewares.AuthMiddleware(createUserProfile, db))
-		r.Put("/", middlewares.AuthMiddleware(updateUserProfile, db))
-		r.Get("/", middlewares.AuthMiddleware(getUserProfile, db))
+		r.Post("/", middlewares.WithAuth(createUserProfile(profileService)))
+		r.Put("/", middlewares.WithAuth(updateUserProfile(profileService)))
+		r.Get("/", middlewares.WithAuth(getUserProfile(profileService)))
 	})
 }

@@ -2,11 +2,8 @@ package auth
 
 import (
 	"net/http"
-	"os"
 	"time"
 
-	"github.com/golang-jwt/jwt"
-	"github.com/saadi925/email_marketing_api/internal/app/users"
 	"github.com/saadi925/email_marketing_api/internal/app/utils"
 )
 
@@ -123,20 +120,20 @@ func ForgotPasswordHandler(service AuthService) http.HandlerFunc {
 
 func ChangePasswordHandler(service AuthService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var changePasswordReq changePasswordRequest
-		err := utils.ParseJSON(r, &changePasswordReq)
+		var passReq changePasswordRequest
+		err := utils.ParseJSON(r, &passReq)
 		if err != nil {
 			utils.RespondError(w, http.StatusBadRequest, "Invalid request")
 			return
 		}
 
-		err = utils.Validate.Struct(changePasswordReq)
+		err = utils.Validate.Struct(passReq)
 		if err != nil {
 			utils.RespondError(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
-		err = service.ChangePassword(r.Context(), changePasswordReq)
+		err = service.ChangePassword(r.Context(), passReq)
 		if err != nil {
 			utils.RespondError(w, http.StatusInternalServerError, "Error changing password")
 			return
@@ -146,13 +143,4 @@ func ChangePasswordHandler(service AuthService) http.HandlerFunc {
 			Message: "Password changed successfully",
 		})
 	}
-}
-
-func generateJWT(user users.User, expiry time.Duration) (string, error) {
-	claims := jwt.MapClaims{
-		"userID": user.ID,
-		"exp":    time.Now().Add(expiry).Unix(),
-	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 }

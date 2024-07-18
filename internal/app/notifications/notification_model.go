@@ -7,7 +7,7 @@ import (
 )
 
 type Notification struct {
-	ID        int       `json:"id"`
+	ID        int32     `json:"id"`
 	UserID    uuid.UUID `json:"user_id"`
 	Message   string    `json:"message"`
 	Read      bool      `json:"read"`

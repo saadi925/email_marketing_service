@@ -107,7 +107,7 @@ type EmailVerify struct {
 }
 
 type Notification struct {
-	ID        uuid.UUID
+	ID        int32
 	UserID    uuid.UUID
 	Message   string
 	Read      sql.NullBool

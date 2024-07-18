@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/google/uuid"
 )
@@ -68,4 +69,20 @@ func (q *Queries) GetNotificationsByUserID(ctx context.Context, userID uuid.UUID
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateNotificationReadStatus = `-- name: UpdateNotificationReadStatus :exec
+UPDATE notifications
+SET read = $2
+WHERE id = $1
+`
+
+type UpdateNotificationReadStatusParams struct {
+	ID   int32
+	Read sql.NullBool
+}
+
+func (q *Queries) UpdateNotificationReadStatus(ctx context.Context, arg UpdateNotificationReadStatusParams) error {
+	_, err := q.db.ExecContext(ctx, updateNotificationReadStatus, arg.ID, arg.Read)
+	return err
 }

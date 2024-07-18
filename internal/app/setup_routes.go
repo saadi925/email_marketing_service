@@ -27,6 +27,7 @@ func bootstrapRoutes(config apiConfig) *chi.Mux {
 		utils.RespondJSON(w, http.StatusOK, "Hi Buddy")
 	})
 	auth.Routes(r, config.DB)
+
 	users.Routes(r, config.DB)
 	return r
 }
