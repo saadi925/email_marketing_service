@@ -21,5 +21,4 @@ func App() {
 
 	log.Printf("Server started on port %s\n", port)
 	log.Fatal(http.ListenAndServe(":"+port, r))
-
 }
