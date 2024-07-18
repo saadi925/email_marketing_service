@@ -14,7 +14,7 @@ import (
 )
 
 type Campaign struct {
-	ID          uuid.UUID
+	ID          int64
 	UserID      uuid.UUID
 	Name        string
 	Subject     string
@@ -25,10 +25,10 @@ type Campaign struct {
 }
 
 type CampaignOption struct {
-	ID                    uuid.UUID
-	CampaignID            uuid.UUID
+	ID                    int64
+	CampaignID            int64
 	EnableGoogleAnalytics sql.NullBool
-	UpdateProfileFormID   uuid.NullUUID
+	UpdateProfileFormID   sql.NullInt64
 	Tags                  pqtype.NullRawMessage
 	Attachments           pqtype.NullRawMessage
 	CreatedAt             sql.NullTime
@@ -60,9 +60,10 @@ type ContactSegment struct {
 
 type Email struct {
 	ID             uuid.UUID
-	CampaignID     uuid.UUID
+	CampaignID     uuid.NullUUID
 	RecipientEmail string
 	Status         sql.NullString
+	SubscriptionID sql.NullInt64
 	SentAt         sql.NullTime
 	CreatedAt      sql.NullTime
 	UpdatedAt      sql.NullTime
@@ -72,7 +73,7 @@ type EmailList struct {
 	ID          uuid.UUID
 	Name        string
 	Description sql.NullString
-	OwnerID     uuid.NullUUID
+	OwnerID     uuid.UUID
 	CreatedAt   sql.NullTime
 	UpdatedAt   sql.NullTime
 }
@@ -80,7 +81,7 @@ type EmailList struct {
 type EmailLog struct {
 	ID        uuid.UUID
 	EmailID   uuid.UUID
-	Status    sql.NullString
+	Status    string
 	Message   sql.NullString
 	CreatedAt sql.NullTime
 }
@@ -140,7 +141,7 @@ type Segment struct {
 }
 
 type Subscription struct {
-	ID        uuid.UUID
+	ID        int64
 	UserID    uuid.UUID
 	Email     string
 	CreatedAt sql.NullTime
@@ -148,7 +149,7 @@ type Subscription struct {
 }
 
 type UpdateProfileForm struct {
-	ID        uuid.UUID
+	ID        int64
 	Name      string
 	Fields    json.RawMessage
 	CreatedAt sql.NullTime

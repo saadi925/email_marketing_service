@@ -12,8 +12,8 @@ import (
 )
 
 const createSubscription = `-- name: CreateSubscription :one
-INSERT INTO subscriptions (user_id, email)
-VALUES ($1, $2)
+INSERT INTO subscriptions (user_id, email, created_at, updated_at)
+VALUES ($1, $2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 RETURNING id, user_id, email, created_at, updated_at
 `
 
@@ -24,6 +24,35 @@ type CreateSubscriptionParams struct {
 
 func (q *Queries) CreateSubscription(ctx context.Context, arg CreateSubscriptionParams) (Subscription, error) {
 	row := q.db.QueryRowContext(ctx, createSubscription, arg.UserID, arg.Email)
+	var i Subscription
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Email,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const deleteSubscription = `-- name: DeleteSubscription :exec
+DELETE FROM subscriptions
+WHERE id = $1
+`
+
+func (q *Queries) DeleteSubscription(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteSubscription, id)
+	return err
+}
+
+const getSubscriptionByID = `-- name: GetSubscriptionByID :one
+SELECT id, user_id, email, created_at, updated_at
+FROM subscriptions
+WHERE id = $1
+`
+
+func (q *Queries) GetSubscriptionByID(ctx context.Context, id int64) (Subscription, error) {
+	row := q.db.QueryRowContext(ctx, getSubscriptionByID, id)
 	var i Subscription
 	err := row.Scan(
 		&i.ID,
@@ -68,4 +97,20 @@ func (q *Queries) GetSubscriptionsByUserID(ctx context.Context, userID uuid.UUID
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateSubscriptionEmail = `-- name: UpdateSubscriptionEmail :exec
+UPDATE subscriptions
+SET email = $2, updated_at = CURRENT_TIMESTAMP
+WHERE id = $1
+`
+
+type UpdateSubscriptionEmailParams struct {
+	ID    int64
+	Email string
+}
+
+func (q *Queries) UpdateSubscriptionEmail(ctx context.Context, arg UpdateSubscriptionEmailParams) error {
+	_, err := q.db.ExecContext(ctx, updateSubscriptionEmail, arg.ID, arg.Email)
+	return err
 }

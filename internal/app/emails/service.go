@@ -9,7 +9,7 @@ import (
 )
 
 type EmailService interface {
-	CreateEmail(ctx context.Context, campaignID uuid.UUID, recipientEmail string) (*Email, error)
+	CreateEmail(ctx context.Context, recipientEmail string, campaignID *uuid.UUID) (*Email, error)
 	GetEmailByID(ctx context.Context, id uuid.UUID) (*Email, error)
 	UpdateEmailStatus(ctx context.Context, id uuid.UUID, status string) error
 	GetEmailsByCampaignID(ctx context.Context, campaignID uuid.UUID) ([]*Email, error)
@@ -26,9 +26,14 @@ func NewEmailService(db *database.Queries) EmailService {
 	}
 }
 
-func (s *emailService) CreateEmail(ctx context.Context, campaignID uuid.UUID, recipientEmail string) (*Email, error) {
+func (s *emailService) CreateEmail(ctx context.Context, recipientEmail string, campaignID *uuid.UUID) (*Email, error) {
+	var campId uuid.NullUUID
+	if campaignID != nil {
+		campId.Valid = true
+		campId.UUID = *campaignID
+	}
 	dbEmail, err := s.db.CreateEmail(ctx, database.CreateEmailParams{
-		CampaignID:     campaignID,
+		CampaignID:     campId,
 		RecipientEmail: recipientEmail,
 	})
 	if err != nil {
@@ -60,7 +65,11 @@ func (s *emailService) UpdateEmailStatus(ctx context.Context, id uuid.UUID, stat
 }
 
 func (s *emailService) GetEmailsByCampaignID(ctx context.Context, campaignID uuid.UUID) ([]*Email, error) {
-	dbEmails, err := s.db.GetEmailsByCampaignID(ctx, campaignID)
+
+	dbEmails, err := s.db.GetEmailsByCampaignID(ctx, uuid.NullUUID{
+		Valid: true,
+		UUID:  campaignID,
+	})
 	if err != nil {
 		return nil, err
 	}

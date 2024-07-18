@@ -20,7 +20,7 @@ RETURNING id, email_id, status, message, created_at
 
 type CreateEmailLogParams struct {
 	EmailID uuid.UUID
-	Status  sql.NullString
+	Status  string
 	Message sql.NullString
 }
 

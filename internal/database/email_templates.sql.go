@@ -57,6 +57,41 @@ func (q *Queries) CreateEmailTemplate(ctx context.Context, arg CreateEmailTempla
 	return i, err
 }
 
+const deleteEmailTemplate = `-- name: DeleteEmailTemplate :exec
+DELETE FROM email_templates
+WHERE id = $1
+`
+
+func (q *Queries) DeleteEmailTemplate(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteEmailTemplate, id)
+	return err
+}
+
+const getEmailTemplateByID = `-- name: GetEmailTemplateByID :one
+SELECT id, user_id, template_name, subject_line, preview_text, from_email, from_name, reply_to_email, customize_to_field, created_at, updated_at
+FROM email_templates
+WHERE id = $1
+`
+
+func (q *Queries) GetEmailTemplateByID(ctx context.Context, id uuid.UUID) (EmailTemplate, error) {
+	row := q.db.QueryRowContext(ctx, getEmailTemplateByID, id)
+	var i EmailTemplate
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.TemplateName,
+		&i.SubjectLine,
+		&i.PreviewText,
+		&i.FromEmail,
+		&i.FromName,
+		&i.ReplyToEmail,
+		&i.CustomizeToField,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getEmailTemplatesByUserID = `-- name: GetEmailTemplatesByUserID :many
 SELECT id, user_id, template_name, subject_line, preview_text, from_email, from_name, reply_to_email, customize_to_field, created_at, updated_at
 FROM email_templates
@@ -96,4 +131,35 @@ func (q *Queries) GetEmailTemplatesByUserID(ctx context.Context, userID uuid.UUI
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateEmailTemplate = `-- name: UpdateEmailTemplate :exec
+UPDATE email_templates
+SET template_name = $1, subject_line = $2, preview_text = $3, from_email = $4, from_name = $5, reply_to_email = $6, customize_to_field = $7, updated_at = CURRENT_TIMESTAMP
+WHERE id = $8
+`
+
+type UpdateEmailTemplateParams struct {
+	TemplateName     string
+	SubjectLine      string
+	PreviewText      sql.NullString
+	FromEmail        string
+	FromName         string
+	ReplyToEmail     sql.NullString
+	CustomizeToField sql.NullBool
+	ID               uuid.UUID
+}
+
+func (q *Queries) UpdateEmailTemplate(ctx context.Context, arg UpdateEmailTemplateParams) error {
+	_, err := q.db.ExecContext(ctx, updateEmailTemplate,
+		arg.TemplateName,
+		arg.SubjectLine,
+		arg.PreviewText,
+		arg.FromEmail,
+		arg.FromName,
+		arg.ReplyToEmail,
+		arg.CustomizeToField,
+		arg.ID,
+	)
+	return err
 }

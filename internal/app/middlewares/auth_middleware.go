@@ -10,6 +10,8 @@ import (
 
 type AuthHandler func(http.ResponseWriter, *http.Request, uuid.UUID)
 
+// These returns a handler function with the current user id.
+// Make sure to pass a handler that returns the handler function with the user id
 func WithAuth(handler AuthHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userId, err := extractUserIDFromToken(r)

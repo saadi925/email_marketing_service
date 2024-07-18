@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
 	"github.com/saadi925/email_marketing_api/internal/app/auth"
+	userprofiles "github.com/saadi925/email_marketing_api/internal/app/user_profiles"
 	"github.com/saadi925/email_marketing_api/internal/app/users"
 	"github.com/saadi925/email_marketing_api/internal/app/utils"
 )
@@ -27,7 +28,7 @@ func bootstrapRoutes(config apiConfig) *chi.Mux {
 		utils.RespondJSON(w, http.StatusOK, "Hi Buddy")
 	})
 	auth.Routes(r, config.DB)
-
 	users.Routes(r, config.DB)
+	userprofiles.Routes(r, config.DB)
 	return r
 }

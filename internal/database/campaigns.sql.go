@@ -48,6 +48,38 @@ func (q *Queries) CreateCampaign(ctx context.Context, arg CreateCampaignParams) 
 	return i, err
 }
 
+const deleteCampaign = `-- name: DeleteCampaign :exec
+DELETE FROM campaigns
+WHERE id = $1
+`
+
+func (q *Queries) DeleteCampaign(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteCampaign, id)
+	return err
+}
+
+const getCampaignByID = `-- name: GetCampaignByID :one
+SELECT id, user_id, name, subject, body, scheduled_at, created_at, updated_at
+FROM campaigns
+WHERE id = $1
+`
+
+func (q *Queries) GetCampaignByID(ctx context.Context, id int64) (Campaign, error) {
+	row := q.db.QueryRowContext(ctx, getCampaignByID, id)
+	var i Campaign
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Name,
+		&i.Subject,
+		&i.Body,
+		&i.ScheduledAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getCampaignsByUserID = `-- name: GetCampaignsByUserID :many
 SELECT id, user_id, name, subject, body, scheduled_at, created_at, updated_at
 FROM campaigns
@@ -84,4 +116,29 @@ func (q *Queries) GetCampaignsByUserID(ctx context.Context, userID uuid.UUID) ([
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateCampaign = `-- name: UpdateCampaign :exec
+UPDATE campaigns
+SET name = $2, subject = $3, body = $4, scheduled_at = $5, updated_at = CURRENT_TIMESTAMP
+WHERE id = $1
+`
+
+type UpdateCampaignParams struct {
+	ID          int64
+	Name        string
+	Subject     string
+	Body        string
+	ScheduledAt sql.NullTime
+}
+
+func (q *Queries) UpdateCampaign(ctx context.Context, arg UpdateCampaignParams) error {
+	_, err := q.db.ExecContext(ctx, updateCampaign,
+		arg.ID,
+		arg.Name,
+		arg.Subject,
+		arg.Body,
+		arg.ScheduledAt,
+	)
+	return err
 }

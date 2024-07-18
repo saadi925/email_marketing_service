@@ -15,11 +15,11 @@ import (
 const createEmail = `-- name: CreateEmail :one
 INSERT INTO emails (campaign_id, recipient_email)
 VALUES ($1, $2)
-RETURNING id, campaign_id, recipient_email, status, sent_at, created_at, updated_at
+RETURNING id, campaign_id, recipient_email, status, subscription_id, sent_at, created_at, updated_at
 `
 
 type CreateEmailParams struct {
-	CampaignID     uuid.UUID
+	CampaignID     uuid.NullUUID
 	RecipientEmail string
 }
 
@@ -31,6 +31,7 @@ func (q *Queries) CreateEmail(ctx context.Context, arg CreateEmailParams) (Email
 		&i.CampaignID,
 		&i.RecipientEmail,
 		&i.Status,
+		&i.SubscriptionID,
 		&i.SentAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -39,7 +40,7 @@ func (q *Queries) CreateEmail(ctx context.Context, arg CreateEmailParams) (Email
 }
 
 const getEmailByID = `-- name: GetEmailByID :one
-SELECT id, campaign_id, recipient_email, status, sent_at, created_at, updated_at
+SELECT id, campaign_id, recipient_email, status, subscription_id, sent_at, created_at, updated_at
 FROM emails
 WHERE id = $1
 `
@@ -52,6 +53,7 @@ func (q *Queries) GetEmailByID(ctx context.Context, id uuid.UUID) (Email, error)
 		&i.CampaignID,
 		&i.RecipientEmail,
 		&i.Status,
+		&i.SubscriptionID,
 		&i.SentAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -60,12 +62,13 @@ func (q *Queries) GetEmailByID(ctx context.Context, id uuid.UUID) (Email, error)
 }
 
 const getEmailsByCampaignID = `-- name: GetEmailsByCampaignID :many
-SELECT id, campaign_id, recipient_email, status, sent_at, created_at, updated_at
+SELECT id, campaign_id, recipient_email, status, subscription_id, sent_at, created_at, updated_at
 FROM emails
 WHERE campaign_id = $1
+ORDER BY created_at DESC
 `
 
-func (q *Queries) GetEmailsByCampaignID(ctx context.Context, campaignID uuid.UUID) ([]Email, error) {
+func (q *Queries) GetEmailsByCampaignID(ctx context.Context, campaignID uuid.NullUUID) ([]Email, error) {
 	rows, err := q.db.QueryContext(ctx, getEmailsByCampaignID, campaignID)
 	if err != nil {
 		return nil, err
@@ -79,6 +82,7 @@ func (q *Queries) GetEmailsByCampaignID(ctx context.Context, campaignID uuid.UUI
 			&i.CampaignID,
 			&i.RecipientEmail,
 			&i.Status,
+			&i.SubscriptionID,
 			&i.SentAt,
 			&i.CreatedAt,
 			&i.UpdatedAt,

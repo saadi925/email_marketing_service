@@ -8,27 +8,27 @@ package database
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 
-	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 )
 
-const createCampaignOptions = `-- name: CreateCampaignOptions :one
+const createCampaignOption = `-- name: CreateCampaignOption :one
 INSERT INTO campaign_options (campaign_id, enable_google_analytics, update_profile_form_id, tags, attachments)
 VALUES ($1, $2, $3, $4, $5)
 RETURNING id, campaign_id, enable_google_analytics, update_profile_form_id, tags, attachments, created_at, updated_at
 `
 
-type CreateCampaignOptionsParams struct {
-	CampaignID            uuid.UUID
+type CreateCampaignOptionParams struct {
+	CampaignID            int64
 	EnableGoogleAnalytics sql.NullBool
-	UpdateProfileFormID   uuid.NullUUID
+	UpdateProfileFormID   sql.NullInt64
 	Tags                  pqtype.NullRawMessage
 	Attachments           pqtype.NullRawMessage
 }
 
-func (q *Queries) CreateCampaignOptions(ctx context.Context, arg CreateCampaignOptionsParams) (CampaignOption, error) {
-	row := q.db.QueryRowContext(ctx, createCampaignOptions,
+func (q *Queries) CreateCampaignOption(ctx context.Context, arg CreateCampaignOptionParams) (CampaignOption, error) {
+	row := q.db.QueryRowContext(ctx, createCampaignOption,
 		arg.CampaignID,
 		arg.EnableGoogleAnalytics,
 		arg.UpdateProfileFormID,
@@ -49,13 +49,47 @@ func (q *Queries) CreateCampaignOptions(ctx context.Context, arg CreateCampaignO
 	return i, err
 }
 
+const createUpdateProfileForm = `-- name: CreateUpdateProfileForm :one
+INSERT INTO update_profile_forms (name, fields)
+VALUES ($1, $2)
+RETURNING id, name, fields, created_at, updated_at
+`
+
+type CreateUpdateProfileFormParams struct {
+	Name   string
+	Fields json.RawMessage
+}
+
+func (q *Queries) CreateUpdateProfileForm(ctx context.Context, arg CreateUpdateProfileFormParams) (UpdateProfileForm, error) {
+	row := q.db.QueryRowContext(ctx, createUpdateProfileForm, arg.Name, arg.Fields)
+	var i UpdateProfileForm
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Fields,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const deleteUpdateProfileForm = `-- name: DeleteUpdateProfileForm :exec
+DELETE FROM update_profile_forms
+WHERE id = $1
+`
+
+func (q *Queries) DeleteUpdateProfileForm(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteUpdateProfileForm, id)
+	return err
+}
+
 const getCampaignOptionsByCampaignID = `-- name: GetCampaignOptionsByCampaignID :many
 SELECT id, campaign_id, enable_google_analytics, update_profile_form_id, tags, attachments, created_at, updated_at
 FROM campaign_options
 WHERE campaign_id = $1
 `
 
-func (q *Queries) GetCampaignOptionsByCampaignID(ctx context.Context, campaignID uuid.UUID) ([]CampaignOption, error) {
+func (q *Queries) GetCampaignOptionsByCampaignID(ctx context.Context, campaignID int64) ([]CampaignOption, error) {
 	rows, err := q.db.QueryContext(ctx, getCampaignOptionsByCampaignID, campaignID)
 	if err != nil {
 		return nil, err
@@ -85,4 +119,69 @@ func (q *Queries) GetCampaignOptionsByCampaignID(ctx context.Context, campaignID
 		return nil, err
 	}
 	return items, nil
+}
+
+const getUpdateProfileFormByID = `-- name: GetUpdateProfileFormByID :one
+SELECT id, name, fields, created_at, updated_at
+FROM update_profile_forms
+WHERE id = $1
+`
+
+func (q *Queries) GetUpdateProfileFormByID(ctx context.Context, id int64) (UpdateProfileForm, error) {
+	row := q.db.QueryRowContext(ctx, getUpdateProfileFormByID, id)
+	var i UpdateProfileForm
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Fields,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateCampaignOption = `-- name: UpdateCampaignOption :exec
+UPDATE campaign_options
+SET enable_google_analytics = $2,
+    update_profile_form_id = $3,
+    tags = $4,
+    attachments = $5,
+    updated_at = NOW()
+WHERE id = $1
+`
+
+type UpdateCampaignOptionParams struct {
+	ID                    int64
+	EnableGoogleAnalytics sql.NullBool
+	UpdateProfileFormID   sql.NullInt64
+	Tags                  pqtype.NullRawMessage
+	Attachments           pqtype.NullRawMessage
+}
+
+func (q *Queries) UpdateCampaignOption(ctx context.Context, arg UpdateCampaignOptionParams) error {
+	_, err := q.db.ExecContext(ctx, updateCampaignOption,
+		arg.ID,
+		arg.EnableGoogleAnalytics,
+		arg.UpdateProfileFormID,
+		arg.Tags,
+		arg.Attachments,
+	)
+	return err
+}
+
+const updateUpdateProfileForm = `-- name: UpdateUpdateProfileForm :exec
+UPDATE update_profile_forms
+SET name = $2, fields = $3, updated_at = now()
+WHERE id = $1
+`
+
+type UpdateUpdateProfileFormParams struct {
+	ID     int64
+	Name   string
+	Fields json.RawMessage
+}
+
+func (q *Queries) UpdateUpdateProfileForm(ctx context.Context, arg UpdateUpdateProfileFormParams) error {
+	_, err := q.db.ExecContext(ctx, updateUpdateProfileForm, arg.ID, arg.Name, arg.Fields)
+	return err
 }

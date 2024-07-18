@@ -5,10 +5,10 @@ import (
 )
 
 type CampaignOption struct {
-	ID                    int       `json:"id"`
-	CampaignID            int       `json:"campaign_id"`
+	ID                    int64     `json:"id"`
+	CampaignID            int64     `json:"campaign_id"`
 	EnableGoogleAnalytics bool      `json:"enable_google_analytics"`
-	UpdateProfileFormID   *int      `json:"update_profile_form_id,omitempty"`
+	UpdateProfileFormID   *int64    `json:"update_profile_form_id,omitempty"`
 	Tags                  []string  `json:"tags,omitempty"`
 	Attachments           []string  `json:"attachments,omitempty"`
 	CreatedAt             time.Time `json:"created_at"`

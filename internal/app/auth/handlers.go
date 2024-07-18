@@ -7,7 +7,7 @@ import (
 	"github.com/saadi925/email_marketing_api/internal/app/utils"
 )
 
-func SignInHandler(service AuthService) http.HandlerFunc {
+func signin(service AuthService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var creds signInRequest
 		err := utils.ParseJSON(r, &creds)
@@ -48,7 +48,7 @@ func SignInHandler(service AuthService) http.HandlerFunc {
 	}
 }
 
-func SignUpHandler(service AuthService) http.HandlerFunc {
+func signup(service AuthService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var creds signUpRequest
 		err := utils.ParseJSON(r, &creds)
@@ -75,7 +75,7 @@ func SignUpHandler(service AuthService) http.HandlerFunc {
 	}
 }
 
-func VerifyEmailHandler(service AuthService) http.HandlerFunc {
+func verifyEmail(service AuthService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		email := r.URL.Query().Get("email")
 		code := r.URL.Query().Get("code")
@@ -97,7 +97,7 @@ func VerifyEmailHandler(service AuthService) http.HandlerFunc {
 	}
 }
 
-func ForgotPasswordHandler(service AuthService) http.HandlerFunc {
+func forgotPassword(service AuthService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		email := r.URL.Query().Get("email")
 
@@ -118,7 +118,7 @@ func ForgotPasswordHandler(service AuthService) http.HandlerFunc {
 	}
 }
 
-func ChangePasswordHandler(service AuthService) http.HandlerFunc {
+func changePassword(service AuthService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var passReq changePasswordRequest
 		err := utils.ParseJSON(r, &passReq)

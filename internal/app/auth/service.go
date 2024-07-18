@@ -39,7 +39,7 @@ type authService struct {
 	jwt *jwt.SigningMethodHMAC
 }
 
-func NewAuthService(db *database.Queries) AuthService {
+func newAuthService(db *database.Queries) AuthService {
 	return &authService{
 		db:  db,
 		jwt: jwt.SigningMethodHS256,
